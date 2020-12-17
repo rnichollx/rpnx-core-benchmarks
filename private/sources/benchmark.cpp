@@ -20,7 +20,7 @@ static void bm_serialize_obj1_to_vector(benchmark::State& state)
     {
         std::vector<std::uint8_t> output;
 
-        rpnx::quick_functor_serialize(object_to_serialize, [&output](std::size_t n)
+        rpnx::quick_generator_serialize(object_to_serialize, [&output](std::size_t n)
             {
                 std::size_t size_old = output.size();
                 output.resize(size_old + n);
@@ -63,6 +63,22 @@ static void bm_serialize_obj1_to_vector_it_preallocate(benchmark::State& state)
 
 }
 BENCHMARK(bm_serialize_obj1_to_vector_it_preallocate);
+
+
+static void bm_serialize_obj1_byteseq(benchmark::State& state)
+{
+    auto object_to_serialize = get_bm_serial1();
+
+    for (auto _ : state)
+    {
+        char* output = new char[rpnx::get_serial_size(object_to_serialize)];
+        rpnx::quick_iterator_serialize(object_to_serialize, output);
+        benchmark::DoNotOptimize(output);
+        delete[] output;
+    }
+
+}
+BENCHMARK(bm_serialize_obj1_byteseq);
 
 
 static void bm_serialize_obj1_to_json_string(benchmark::State& state)
